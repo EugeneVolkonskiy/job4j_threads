@@ -4,9 +4,9 @@ public class ConsoleProgress implements Runnable {
     @Override
     public void run() {
         boolean interrupted = Thread.currentThread().isInterrupted();
+        var process = new char[]{'-', '\\', '|', '/'};
         while (!interrupted) {
             try {
-                var process = new char[]{'-', '\\', '|', '/'};
                 for (char c : process) {
                     System.out.print("\rLoading ... " + c);
                     Thread.sleep(500);
