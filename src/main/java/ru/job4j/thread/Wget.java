@@ -25,19 +25,19 @@ public class Wget implements Runnable {
         try (var in = new URL(url).openStream();
              var out = new FileOutputStream(file)) {
             System.out.println("Open connection: " + (System.currentTimeMillis() - startAt) + " ms");
-            var dataBuffer = new byte[speed];
+            var dataBuffer = new byte[1024];
             int bytesRead;
-            long bytesReadCount = 0;
+            var bytesReadCount = 0;
             var downloadAt = System.currentTimeMillis();
             while ((bytesRead = in.read(dataBuffer, 0, dataBuffer.length)) != -1) {
                 out.write(dataBuffer, 0, bytesRead);
                 bytesReadCount += bytesRead;
-                if (bytesReadCount == speed) {
-                    long now = System.currentTimeMillis();
-                    if ((now - downloadAt) < ONE_SECOND) {
-                        Thread.sleep(ONE_SECOND - (downloadAt - now));
+                if (bytesReadCount > speed) {
+                    var downloadPeriod = System.currentTimeMillis() - downloadAt;
+                    if (downloadPeriod < ONE_SECOND) {
+                        Thread.sleep(ONE_SECOND - downloadPeriod);
                     }
-                    downloadAt = now;
+                    downloadAt = System.currentTimeMillis();
                     bytesReadCount = 0;
                 }
                 System.out.printf("Read %s bytes : " + (System.currentTimeMillis() - downloadAt) + " ms.\n", speed);
