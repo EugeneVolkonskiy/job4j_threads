@@ -13,19 +13,11 @@ public class AccountStorage {
     private final HashMap<Integer, Account> accounts = new HashMap<>();
 
     public synchronized boolean add(Account account) {
-        if (getById(account.id()).isEmpty()) {
-            accounts.put(account.id(), account);
-            return true;
-        }
-        return false;
+        return accounts.putIfAbsent(account.id(), account) != null;
     }
 
     public synchronized boolean update(Account account) {
-        if (getById(account.id()).isPresent()) {
-            accounts.put(account.id(), account);
-            return true;
-        }
-        return false;
+        return accounts.replace(account.id(), account) != null;
     }
 
     public synchronized void delete(int id) {
@@ -37,14 +29,15 @@ public class AccountStorage {
     }
 
     public synchronized boolean transfer(int fromId, int toId, int amount) {
-        if (getById(fromId).isPresent() && getById(toId).isPresent() && amount > 0) {
-            if (getById(fromId).get().amount() >= amount) {
-                update(new Account(fromId, getById(fromId).get().amount() - amount));
-                update(new Account(toId, getById(toId).get().amount() + amount));
+        Optional<Account> fromAccount = getById(fromId);
+        Optional<Account> toAccount = getById(toId);
+        if (fromAccount.isPresent() && toAccount.isPresent() && amount > 0) {
+            if (fromAccount.get().amount() >= amount) {
+                update(new Account(fromId, fromAccount.get().amount() - amount));
+                update(new Account(toId, toAccount.get().amount() + amount));
                 return true;
-            } else {
-                throw new IllegalArgumentException("Transfer failed. Not enough money on account");
             }
+            throw new IllegalArgumentException("Transfer failed. Not enough money on account");
         }
         return false;
     }
