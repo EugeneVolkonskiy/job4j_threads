@@ -30,4 +30,20 @@ public class CountBarrier {
                 }
         }
     }
+
+    public static void main(String[] args) {
+        CountBarrier countBarrier = new CountBarrier(5);
+        Thread threadAwait = new Thread(countBarrier::await, "Thread-Await");
+        threadAwait.start();
+        for (int i = 1; i <= countBarrier.total; i++) {
+            Thread threadCount = new Thread(countBarrier::count);
+            System.out.println(threadCount.getName());
+            threadCount.start();
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }
