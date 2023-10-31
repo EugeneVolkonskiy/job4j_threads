@@ -19,7 +19,7 @@ public class ParallelIndexSearch<T> extends RecursiveTask<Integer> {
 
     public int findIndex() {
         int result = -1;
-        for (int i = 0; i < array.length; i++) {
+        for (int i = from; i <= to; i++) {
             if (element.equals(array[i])) {
                 result = i;
                 break;
@@ -34,8 +34,8 @@ public class ParallelIndexSearch<T> extends RecursiveTask<Integer> {
             return findIndex();
         }
         int mid = (from + to) / 2;
-        var left = new ParallelIndexSearch<>(array, 0, mid, element);
-        var right = new ParallelIndexSearch<>(array, mid + 1, array.length, element);
+        var left = new ParallelIndexSearch<>(array, from, mid, element);
+        var right = new ParallelIndexSearch<>(array, mid + 1, to, element);
         left.fork();
         right.fork();
         return Math.max(left.join(), right.join());
